@@ -9,11 +9,7 @@
   "description": "",
 
   "accessories": [
-    {
-      "accessory": "Temperature Sensor",
-      "name": "Pi Temperature Sensor",
-      "pin": 4
-    },
+
     {
       "accessory": "Humidity Sensor",
       "name": "Pi Humidity Sensor",

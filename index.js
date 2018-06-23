@@ -5,7 +5,7 @@ let Service, Characteristic;
 module.exports = function(homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory('homebridge-temperature-humidity-sensor', 'Temperature Humidity Sensor', Sensor);
+  homebridge.registerAccessory('homebridge-humidity-sensor', 'Humidity Sensor', Sensor);
 };
 
 class Sensor {
@@ -13,7 +13,6 @@ class Sensor {
     this.log = log;
     this.name = config.name;
     this.pin = config.pin;
-    this.currentTemperature = 22;
     this.currentRelativeHumidity = 50;
   }
 
@@ -31,17 +30,14 @@ class Sensor {
   }
 
   getReading(callback) {
-    sensor.read(22, this.pin, (err, temperature, humidity) => {
+    sensor.read(22, this.pin, (err, _, humidity) => {
       callback();
       if (err) {
         console.error(err); // eslint-disable-line no-console
         return;
       }
 
-      this.currentTemperature = temperature;
       this.currentRelativeHumidity = humidity;
-
-      this.temperatureService.setCharacteristic(Characteristic.CurrentTemperature, this.currentTemperature);
       this.humidityService.setCharacteristic(Characteristic.CurrentRelativeHumidity, this.currentRelativeHumidity);
     });
   }
@@ -51,20 +47,8 @@ class Sensor {
 
     informationService
       .setCharacteristic(Characteristic.Manufacturer, 'Encore Dev Labs')
-      .setCharacteristic(Characteristic.Model, 'Pi Temperature Sensor')
+      .setCharacteristic(Characteristic.Model, 'Pi Humidity Sensor')
       .setCharacteristic(Characteristic.SerialNumber, 'Raspberry Pi');
-
-    this.temperatureService = new Service.TemperatureSensor(this.name);
-    this.temperatureService
-      .getCharacteristic(Characteristic.CurrentTemperature)
-      .on('get', (callback) => {
-        callback(null, this.currentTemperature);
-      });
-    this.temperatureService
-      .getCharacteristic(Characteristic.Name)
-      .on('get', callback => {
-        callback(null, this.name);
-      });
 
     this.humidityService = new Service.HumiditySensor(this.name);
     this.humidityService
@@ -80,6 +64,6 @@ class Sensor {
 
     this.startReading();
 
-    return [informationService, this.temperatureService, this.humidityService];
+    return [informationService, this.humidityService];
   }
 }
